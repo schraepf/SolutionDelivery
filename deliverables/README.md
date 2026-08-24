@@ -1,7 +1,7 @@
 # Deliverables
 
-Working area for generated client documents — the output of
-`tools/new_document.py`. One subfolder per client:
+Working area for generated client documents — copies of templates filled in via
+their Engagement Properties appendix. One subfolder per client:
 
 ```
 deliverables/

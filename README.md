@@ -1,15 +1,18 @@
 # Essendis Solution Delivery
 
 The documentation factory for Essendis client engagements. This repository
-holds reusable, **client-neutral** document templates plus the tooling and
-conventions for turning them into consistent client deliverables quickly:
-design documents, as-configured documentation, questionnaires, user
-communications, presentations, and reports.
+holds reusable, **client-neutral** document templates plus the conventions for
+turning them into consistent client deliverables quickly: design documents,
+as-configured documentation, questionnaires, user communications,
+presentations, and reports.
 
-The idea is simple. Templates carry `{{TOKEN}}` placeholders wherever
-client-specific text belongs. A script fills them in. Nobody retypes a client
-name into a 60-page design document, and nobody ships a document with the
-previous client's name still in its metadata.
+The idea is simple. Every template ends with an **Engagement Properties**
+appendix: a small table where you type the client name, domain, tenant, and the
+rest. Those cells are bound content controls, so typing a value there fills it
+in everywhere it belongs — body prose, title page, running headers, policy
+names, email addresses — as you type. Nobody retypes a client name into a
+60-page design document, and nobody ships a document with the previous client's
+name still in its metadata.
 
 ## Repository structure
 
@@ -21,49 +24,62 @@ templates/
   communications/    # user-facing comms (cutover notices, onboarding emails)
   presentations/     # slide decks
   reports/           # status / assessment / closeout reports
-tools/               # generation scripts
 deliverables/        # generated client documents, one subfolder per client
 ```
 
 ## Quick start: generating a client deliverable
 
-```
-python tools/new_document.py templates/design/Data_Migration_Design.docx \
-    --client-name "Contoso Concrete LLC" \
-    --client-abbr CC \
-    --client-domain contoso.com \
-    --client-tenant contoso \
-    --author "Jane Smith"
-```
+1. **Copy the template out of `templates/`.** Never edit a template in place to
+   produce a deliverable. Put the copy under
+   `deliverables/<Client_Name>/`.
 
-That writes:
+2. **Open the copy and go to the final appendix** — "Appendix — Engagement
+   Properties (REMOVE FROM DELIVERABLE)". Fill in the Value column. Each Value
+   cell shows its property token (`{{CLIENT_NAME}}`, `{{CLIENT_ABBR}}`, and so
+   on) until you type over it, and the Example column shows the expected shape
+   of the answer. The document populates as you go — no field refresh (F9)
+   needed.
 
-```
-deliverables/Contoso_Concrete_LLC/Contoso_Concrete_LLC__Data_Migration_Design__20260901.docx
-```
+3. **Save As** using the naming convention:
 
-Useful flags:
+   ```
+   <Client_Name>__<Document_Title>__<YYYYMMDD>.docx
+   ```
 
-- `--list-tokens` — show which tokens a template uses and where they live,
-  before you generate anything.
-- `--set TOKEN=VALUE` — fill any token beyond the standard set; repeatable.
-- `--date 9/1/2026` — override the title-page date (defaults to today).
-- `--out PATH` — write somewhere other than the default `deliverables/` path.
-- `--force` — overwrite an existing output file.
+   For example
+   `deliverables/Contoso_Concrete_LLC/Contoso_Concrete_LLC__Data_Migration_Design__20260901.docx`.
 
-After generating, the script re-scans the output and warns about any `{{TOKEN}}`
-still unfilled. That is expected when you skip an optional flag; it is a
-reminder, not an error.
+4. **Before delivering**, delete the Engagement Properties appendix — the values
+   are retained after it is gone — then update the table of contents (F9, or
+   right-click → Update Field) so the removed appendix drops out of it. Remove
+   any other section whose heading is marked "REMOVE FROM DELIVERABLE" as well.
 
-### The manual alternative, and why it is worse
+If a `{{TOKEN}}` is still visible anywhere in the document, that property was
+never filled. That is the point of the placeholder text: an unfilled document is
+unmistakable.
 
-You can copy a template and find/replace the `{{TOKENS}}` in Word. Be aware of
-what that misses: Word's find/replace walks the document body only. It does
-**not** reach image alt-text, document properties (`app.xml` `<Company>`), or
-hyperlink and `mailto:` targets — all of which carry tokens in these templates.
-A hand-instantiated document will look finished and still have placeholders, or
-a prior client's name, buried in its metadata. The script rewrites every XML
-part in the package, so it catches all of them. Prefer the script.
+### How it works
+
+The Value cells in the appendix are Word **data-bound content controls**. They
+do not paste text around the document; they display a single stored value, and
+every other place that property appears is another control bound to the same
+store. Edit any one of them and the rest follow.
+
+- **Live propagation.** Values appear throughout the document as you type them
+  (in desktop Word, when you click out of the cell). There are no fields to
+  refresh.
+- **Works in the browser.** Bound controls resolve the same way in Word for the
+  web as in desktop Word, so a deliverable can be filled in without installing
+  anything.
+- **Metadata fills itself.** Client Name is bound to the document's built-in
+  **Company** property, so `docProps/app.xml` gets the client name at the same
+  time the title page does.
+- **Values survive the appendix.** The stored values live in the document
+  properties and an embedded XML part, not in the table. Deleting the appendix
+  before delivery does not blank the document.
+- **Nothing hides in the plumbing.** Spots that cannot host a content control —
+  image alt-text, hyperlink and `mailto:` targets — no longer carry tokens at
+  all; they were neutralized when the templates were built.
 
 ## Conventions
 
@@ -80,30 +96,39 @@ single underscores. For example:
 Contoso_Concrete__Data_Migration_Design__20260901.docx
 ```
 
-The placeholder token registry lives in [templates/README.md](templates/README.md).
+The engagement properties registry lives in [templates/README.md](templates/README.md).
 
 ## Adding a new template
 
 New templates usually start as a real client document. Generalizing it means
-removing every trace of that client:
+removing every trace of that client. Client-specific text is replaced by a
+**bound content control** for the matching property — the practical way to add
+one is to copy an existing instance of that property's control from elsewhere in
+the document and paste it where you need it (pasting preserves the binding), or
+to wrap the site per the pattern documented in
+[templates/README.md](templates/README.md).
 
-1. **Client names and abbreviations** → `{{CLIENT_NAME}}` / `{{CLIENT_ABBR}}`,
-   including policy names and admin usernames.
-2. **Domains** → `{{CLIENT_DOMAIN}}`, in prose, examples, and email addresses.
-3. **Tenant names** → `{{CLIENT_TENANT}}`, including `*.onmicrosoft.us` and
-   `*.microsoftonline.us` references.
-4. **Staff names** → `{{AUTHOR_NAME}}`, or a generic role if the name is not
+1. **Client names and abbreviations** → Client Name / Client Abbreviation
+   controls, including policy names and admin usernames.
+2. **Domains** → Client Primary Domain controls, in prose, examples, and email
+   addresses.
+3. **Tenant names** → Client Tenant Subdomain controls, including
+   `*.onmicrosoft.us` and `*.microsoftonline.us` references.
+4. **Staff names** → a Prepared By control, or a generic role if the name is not
    the document author.
 5. **Client logos** → the neutral 225x225 "CLIENT LOGO" placeholder image.
    Essendis branding stays.
 6. **Image alt-text** — check every image's `descr` attribute; logos are
-   routinely described by client name.
+   routinely described by client name. Alt-text cannot host a control, so write
+   neutral text there.
 7. **Document properties** — `docProps/app.xml` `<Company>` becomes
-   `{{CLIENT_NAME}}`; `docProps/core.xml` title becomes the template's name.
+   `{{CLIENT_NAME}}` (it is the Client Name store's unfilled value);
+   `docProps/core.xml` title becomes the template's name.
 8. **Headers and footers** — running headers usually repeat the client name on
    every page.
 9. **Hyperlink targets** — `mailto:` and URL targets in
-   `word/_rels/document.xml.rels` hide client domains.
+   `word/_rels/document.xml.rels` hide client domains. These cannot be bound
+   either; neutralize them.
 10. **Accept all tracked changes** and delete all comments.
 
 Then verify, rather than trusting the pass above. Unpack the document and sweep
@@ -119,11 +144,12 @@ pandoc -t plain templates/design/New_Template.docx | grep -i -E 'contoso|concret
 
 Both sweeps must come back empty. The XML sweep catches metadata and alt-text;
 the extracted-text sweep confirms the visible document reads correctly. Finish
-by running `--list-tokens` on the finished template to confirm the placeholders
-are intact and none got split across runs.
+by opening the finished template and confirming every property token still shows
+as placeholder text, and that typing a test value into the appendix reaches
+every site you expect.
 
-Authoring rules — how to insert tokens so they survive Word, branding, metadata
-hygiene — are in [templates/README.md](templates/README.md).
+Authoring rules — how to add bound sites so they survive Word, branding,
+metadata hygiene — are in [templates/README.md](templates/README.md).
 
 ## A note on `deliverables/`
 
