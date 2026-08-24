@@ -1,0 +1,10 @@
+# Word / Office lock and temp files
+~$*
+*.tmp
+
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
