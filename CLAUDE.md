@@ -73,3 +73,9 @@ unpacked package XML *and* a case-insensitive grep of pandoc-extracted text.
 Both must come back empty.
 
 **Templates never contain** tracked changes, comments, or real client data.
+
+## Delivery workflow (git)
+
+Work happens on a feature branch. When the work is complete and pushed,
+always open a pull request to `main` and merge it — delivered work never
+sits unmerged on a branch.
