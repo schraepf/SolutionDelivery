@@ -23,10 +23,11 @@ to haiku.
 ## Repository purpose & layout
 
 Essendis's documentation factory: client-neutral document templates plus
-tooling for generating consistent client deliverables (design documents,
+conventions for producing consistent client deliverables (design documents,
 as-configured documentation, questionnaires, user communications,
-presentations, reports). Templates carry `{{TOKEN}}` placeholders;
-`tools/new_document.py` fills them in to produce a deliverable. Templates are
+presentations, reports). Each template ends with an "Engagement Properties"
+appendix whose Value cells are data-bound content controls; filling them
+populates the document — prose, title page, headers, metadata. Templates are
 never edited in place to make a deliverable.
 
 ```
@@ -37,7 +38,6 @@ templates/
   communications/    # user-facing comms (cutover notices, onboarding emails)
   presentations/     # slide decks
   reports/           # status / assessment / closeout reports
-tools/               # generation scripts
 deliverables/        # generated client documents, one subfolder per client
 ```
 
@@ -47,26 +47,29 @@ Deliverable file names: `<Client_Name>__<Document_Title>__<YYYYMMDD>.docx` —
 double underscores between fields, spaces within a field become single
 underscores.
 
-The placeholder token registry is in `templates/README.md`. Treat it as the
-source of truth; do not invent tokens without adding them there.
+The engagement properties registry is in `templates/README.md`. Treat it as the
+source of truth; do not invent properties without adding them there.
 
 All Word, PowerPoint, Excel, and PDF work goes through the corresponding skill
 (docx / pptx / xlsx / pdf). Do not hand-edit Office XML outside those skills.
 
 ## Workflows
 
-**New client deliverable.** Run the generator:
-
-```
-python tools/new_document.py templates/design/Data_Migration_Design.docx \
-    --client-name "Contoso Concrete LLC" --client-abbr CC \
-    --client-domain contoso.com --client-tenant contoso --author "Jane Smith"
-```
-
-Check the post-generation warning for unfilled tokens.
+**New client deliverable.** Copy the template out of `templates/` into
+`deliverables/<Client_Name>/`. Open the copy, go to the final "Appendix —
+Engagement Properties" table, and fill the Value column — the bound controls
+populate the document live, no F9 needed. Save As
+`<Client_Name>__<Document_Title>__<YYYYMMDD>.docx`. Before delivering, delete
+the appendix (the values are retained) and update the TOC so it drops out, plus
+any other section marked "REMOVE FROM DELIVERABLE". A leftover `{{TOKEN}}` means
+that property was never filled. Programmatic fill: set `<Company>` in
+`docProps/app.xml` and the five values in the `urn:essendis:engagement-profile`
+custom XML part, then let Word re-resolve the bindings on open.
 
 **New template from a client document.** Follow the generalization checklist in
-`README.md`. Replace the client logo with the placeholder image, accept all
+`README.md`. Bind content controls at every client-specific site (copy an
+existing bound control of that property to add sites — copying preserves the
+binding), replace the client logo with the placeholder image, accept all
 tracked changes, fix `docProps` metadata (`core.xml` title, `app.xml` Company),
 then verify zero client references two ways: a case-insensitive grep of the
 unpacked package XML *and* a case-insensitive grep of pandoc-extracted text.
