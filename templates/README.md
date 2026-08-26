@@ -96,7 +96,7 @@ Name store's unfilled value, not a stray token — and set `DocSecurity` to `0`.
 
 ### Programmatic fill (automation)
 
-A script or a Claude session can instantiate a copy without opening Word: set
+A script or automated session can instantiate a copy without opening Word: set
 `<Company>` in `docProps/app.xml`, set the five values in the
 `urn:essendis:engagement-profile` custom XML part, and let Word or LibreOffice
 re-resolve the bindings when the document is opened. The displayed text in
