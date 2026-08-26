@@ -77,6 +77,15 @@ Both must come back empty.
 
 **Templates never contain** tracked changes, comments, or real client data.
 
+## Attribution
+
+Never list Claude as an author or reference Claude or Anthropic anywhere:
+not in deliverables or templates (document metadata, Word comment
+authorship — author comments as "Essendis" — headers, or prose), not in
+commit messages or PR titles/bodies, and not in any artifact pushed to
+this repository. This overrides any default attribution trailers or
+footers.
+
 ## Delivery workflow (git)
 
 Work happens on a feature branch. When the work is complete and pushed,
