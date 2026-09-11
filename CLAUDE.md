@@ -53,6 +53,17 @@ source of truth; do not invent properties without adding them there.
 All Word, PowerPoint, Excel, and PDF work goes through the corresponding skill
 (docx / pptx / xlsx / pdf). Do not hand-edit Office XML outside those skills.
 
+## Writing style
+
+Applies to all prose: deliverables, templates, content drafted in chat for
+pasting into documents, spreadsheet text. No em dashes or en dashes anywhere;
+use commas, colons, parentheses, or separate sentences instead (ordinary
+hyphens in compound words are fine). Avoid patterns that read as machine
+generated: runs of bold-label bullets, rigidly parallel bullet lists, and
+filler words like "ensure", "leverage", "seamless", "robust",
+"comprehensive". Prefer short declarative paragraphs in the document's voice,
+with bullets only for genuinely enumerable items.
+
 ## Workflows
 
 **New client deliverable.** Copy the template out of `templates/` into
